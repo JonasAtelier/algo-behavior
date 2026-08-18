@@ -2,3 +2,4 @@
 *.a
 turnstile
 test_fsm
+test_cpp_linkage
