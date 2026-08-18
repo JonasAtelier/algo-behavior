@@ -1,0 +1,4 @@
+*.o
+*.a
+turnstile
+test_fsm
