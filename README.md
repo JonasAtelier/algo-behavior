@@ -1,121 +1,147 @@
 # fsm
 
-Portable, table-driven finite state machine in one C file.
+A tiny finite state machine library in C.
 
-- C99, no dependencies at all — not even `libm`
-- No `malloc`, no globals, no I/O — safe on MCUs and in interrupt context
-- The machine definition is `const`, so it lives in ROM and can be shared by
-  many instances
-- Universal: states and events are plain `int`, context is `void *`. The
-  library never needs to know what a state *means* — protocol handlers, UI
-  screens, motor control, parsers, retry logic, all the same code.
+A state machine is just this: **your thing is in one state, an event happens,
+it moves to another state.** A door is `OPEN` or `CLOSED`. A download is
+`IDLE`, `RUNNING` or `DONE`. Writing that with flags and nested `if`s gets
+messy fast. Here you write it as a table and the library runs it.
 
-## Build
+- One header, one source file. Drop them into any C project.
+- No dependencies, no `malloc` — works fine on a microcontroller.
+- Works for anything: your states and events are just numbers you name.
+
+## Try it
 
 ```sh
-make          # libfsm.a + example + tests
-make check    # run the self-check
+make check    # run the tests
 make run      # run the turnstile example
 ```
 
-Or just compile `src/fsm.c` with your own build.
+## A complete example
 
-## The API
-
-Three functions, four types.
-
-### 1. Bring your own enums
+A turnstile: it stays locked until you put a coin in, then lets one person
+through.
 
 ```c
-enum { LOCKED, UNLOCKED, N_STATES };   /* state ids must start at 0 */
+#include "fsm.h"
+#include <stdio.h>
+
+/* 1. Name your states and events. Any names you like. */
+enum { LOCKED, UNLOCKED, N_STATES };
 enum { EV_COIN, EV_PUSH };
-```
 
-### 2. Write the table
+/* 2. Write what should happen. ctx is your own data. */
+static void take_coin(void *ctx)   { (*(int *)ctx)++; }
+static void let_through(void *ctx) { (void)ctx; puts("clunk"); }
 
-```c
+/* 3. Write the table: from this state, on this event, go to that state. */
 static const fsm_transition table[] = {
     /* from      event     to         guard  action      */
     { LOCKED,    EV_COIN,  UNLOCKED,  NULL,  take_coin   },
-    { LOCKED,    EV_PUSH,  FSM_SAME,  NULL,  refuse      },
     { UNLOCKED,  EV_PUSH,  LOCKED,    NULL,  let_through },
-    { FSM_ANY,   EV_ABORT, LOCKED,    NULL,  NULL        },
 };
+
+static const fsm_def def = { table, 2, NULL, 0 };
+
+int main(void)
+{
+    int coins = 0;
+    fsm m;
+
+    fsm_init(&m, &def, LOCKED, &coins);   /* start in LOCKED */
+
+    fsm_dispatch(&m, EV_PUSH);            /* locked - nothing happens */
+    fsm_dispatch(&m, EV_COIN);            /* now UNLOCKED, coins == 1 */
+    fsm_dispatch(&m, EV_PUSH);            /* prints "clunk", back to LOCKED */
+
+    printf("coins=%d state=%d\n", coins, m.state);
+    return 0;
+}
 ```
 
-The whole machine is readable in one screen, which is the point of a table
-instead of a `switch` nest.
+That is the whole idea. Everything below is optional extra.
 
-| slot | meaning |
-|------|---------|
-| `from`   | a state id, or `FSM_ANY` to match every state |
-| `to`     | a state id, or `FSM_SAME` for an internal transition (run the action, stay put, no exit/enter) |
-| `guard`  | optional `int (*)(void *ctx)` — return non-zero to allow |
-| `action` | optional `void (*)(void *ctx)` — runs between exit and enter |
+## The three functions
 
-Rows are scanned top to bottom and the first match wins. A guard that refuses
-does not stop the scan, so several rows can share an event and branch on
-their guards — that is how you express conditional transitions without
-writing any dispatch logic.
+```c
+fsm_init(&m, &def, START_STATE, &my_data);   /* set it up */
+fsm_dispatch(&m, EV_SOMETHING);              /* feed it an event */
+fsm_accepts(&m, EV_SOMETHING);               /* 1 if that event would do something */
+```
 
-### 3. Optional entry/exit hooks
+Read the current state with `m.state`. Don't assign to it — send an event
+instead.
+
+`fsm_dispatch` gives you back:
+
+- `FSM_OK` — it moved
+- `FSM_IGNORED` — no rule matched, nothing happened (normal, not an error)
+- `FSM_EARG` — you passed something broken
+
+## The table row, slot by slot
+
+```c
+{ from, event, to, guard, action }
+```
+
+- **from** — the state this rule applies to. Use `FSM_ANY` for "no matter
+  which state we are in" — handy for an abort or reset event.
+- **event** — the event that triggers it.
+- **to** — the state to move to. Use `FSM_SAME` for "run the action but stay
+  where you are".
+- **guard** — optional. A function returning non-zero for yes. If it says no,
+  the library keeps looking at the rows below, so you can have two rules for
+  the same event and pick between them:
+
+  ```c
+  { IDLE, EV_START, RUNNING, have_fuel, NULL },   /* if fuelled, go */
+  { IDLE, EV_START, ERROR,   NULL,      beep },   /* otherwise, complain */
+  ```
+
+- **action** — optional. A function to run during the move.
+
+Rules are checked top to bottom and the first one that fits wins.
+
+## Doing something on arriving or leaving
+
+Optional. One entry per state, in state order:
 
 ```c
 static const fsm_state_ops states[N_STATES] = {
-    [LOCKED]   = { on_lock,   NULL },     /* { on_enter, on_exit } */
-    [UNLOCKED] = { on_unlock, NULL },
+    [LOCKED]   = { light_red,   NULL },      /* { on_enter, on_exit } */
+    [UNLOCKED] = { light_green, NULL },
 };
+
+static const fsm_def def = { table, 2, states, N_STATES };
 ```
 
-Indexed by state id. Pass `NULL` and `0` if you do not need them.
+Order during a move: **on_exit → action → on_enter**. `fsm_init` runs the
+starting state's `on_enter` too.
 
-### 4. Run it
+Don't need them? Pass `NULL, 0` like the example above does.
 
-```c
-static const fsm_def def = { table, 4, states, N_STATES };
+## What `ctx` is for
 
-fsm m;
-fsm_init(&m, &def, LOCKED, &my_context);   /* runs LOCKED's on_enter */
+The `void *` you give `fsm_init` is passed to every guard, action and hook.
+Put your own struct there — a counter, a socket, a device handle. The library
+never looks inside it.
 
-fsm_dispatch(&m, EV_COIN);                 /* feed events */
-
-if (fsm_accepts(&m, EV_PUSH)) { /* ... grey out the button, etc. */ }
-
-int now = m.state;                         /* read it; do not write it */
-```
-
-`ctx` is handed to every guard, action and hook. It is the only state the
-library carries for you — everything else is yours.
-
-### Return codes
-
-| code | meaning |
-|------|---------|
-| `FSM_OK` (0)      | transition taken |
-| `FSM_IGNORED` (1) | nothing matched — usually fine, not an error |
-| `FSM_EARG` (-1)   | bad argument, or a table row pointing at a state that does not exist |
-
-### Order of operations
-
-A transition runs `on_exit` → `action` → `on_enter`, then the state changes are
-visible. A transition to the state you are already in *does* cycle the hooks;
-use `FSM_SAME` when you want the action without them.
-
-## Layout
+## Files
 
 ```
-include/fsm.h          the whole public API
-src/fsm.c              the whole implementation (~80 lines)
-examples/turnstile.c   coin-operated turnstile, with guards and hooks
-test/test_fsm.c        assert-based self-check
+include/fsm.h          the API, with comments
+src/fsm.c              the implementation, ~80 lines
+examples/turnstile.c   a bigger example, with guards and hooks
+test/test_fsm.c        the tests
 ```
 
-## Scope
+## Limits, so you are not surprised
 
-Flat machines only. No hierarchical/nested states, no orthogonal regions, no
-built-in event queue, no timers — feed it from your own loop or ISR. Table
-lookup is a linear scan, which is the right answer up to a few dozen rows; if
-you have hundreds, sort by state and bisect.
-
-Not thread-safe by itself: one `fsm` touched from two threads needs your own
-lock. Separate `fsm` instances sharing one `const fsm_def` are fine.
+- Flat machines only — no states inside states.
+- No event queue and no timers. You call `fsm_dispatch` yourself, from your
+  main loop or an interrupt.
+- Rules are searched one by one. Fine up to a few dozen; sort and bisect if
+  you ever have hundreds.
+- One machine used from two threads needs your own lock. Separate machines
+  sharing the same table are fine.
