@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="230" viewBox="0 0 720 230" role="img" aria-label="Anatomy of one transition row">
+  <defs>
+    <style>
+      .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; fill: #1f2328; }
+      .hd   { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12.5px; font-weight: 600; fill: #0969da; }
+      .sub  { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; fill: #57606a; }
+      .cap  { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; fill: #57606a; }
+      .tick { stroke: #b9c0c8; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect x="1" y="1" width="718" height="228" rx="10" fill="#fbfcfd" stroke="#d0d7de"/>
+
+  <text class="cap" x="24" y="30">One row of the table = one arrow in the diagram.</text>
+
+  <rect x="24" y="44" width="672" height="40" rx="6" fill="#fff" stroke="#d0d7de"/>
+  <text class="code" x="40"  y="70">{</text>
+  <text class="code" x="58"  y="70">LOCKED,</text>
+  <text class="code" x="176" y="70">EV_COIN,</text>
+  <text class="code" x="308" y="70">UNLOCKED,</text>
+  <text class="code" x="452" y="70">NULL,</text>
+  <text class="code" x="558" y="70">take_coin</text>
+  <text class="code" x="672" y="70">}</text>
+
+  <line class="tick" x1="90"  y1="88" x2="90"  y2="112"/>
+  <line class="tick" x1="212" y1="88" x2="212" y2="112"/>
+  <line class="tick" x1="352" y1="88" x2="352" y2="112"/>
+  <line class="tick" x1="474" y1="88" x2="474" y2="112"/>
+  <line class="tick" x1="592" y1="88" x2="592" y2="112"/>
+
+  <text class="hd"  x="90"  y="130" text-anchor="middle">from</text>
+  <text class="sub" x="90"  y="150" text-anchor="middle">which state</text>
+  <text class="sub" x="90"  y="166" text-anchor="middle">this row is for</text>
+  <text class="sub" x="90"  y="186" text-anchor="middle">FSM_ANY = all</text>
+
+  <text class="hd"  x="212" y="130" text-anchor="middle">event</text>
+  <text class="sub" x="212" y="150" text-anchor="middle">what just</text>
+  <text class="sub" x="212" y="166" text-anchor="middle">happened</text>
+
+  <text class="hd"  x="352" y="130" text-anchor="middle">to</text>
+  <text class="sub" x="352" y="150" text-anchor="middle">where to go</text>
+  <text class="sub" x="352" y="166" text-anchor="middle">FSM_SAME =</text>
+  <text class="sub" x="352" y="182" text-anchor="middle">stay put</text>
+
+  <text class="hd"  x="474" y="130" text-anchor="middle">guard</text>
+  <text class="sub" x="474" y="150" text-anchor="middle">may veto this row</text>
+  <text class="sub" x="474" y="166" text-anchor="middle">NULL = always yes</text>
+
+  <text class="hd"  x="592" y="130" text-anchor="middle">action</text>
+  <text class="sub" x="592" y="150" text-anchor="middle">what to run</text>
+  <text class="sub" x="592" y="166" text-anchor="middle">NULL = nothing</text>
+
+  <text class="cap" x="360" y="214" text-anchor="middle">Both function slots take your ctx pointer and nothing else.</text>
+</svg>

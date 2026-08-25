@@ -82,26 +82,10 @@ int main(void)
 
 ## What one `fsm_dispatch` does
 
-```
-   fsm_dispatch(&m, EV_COIN)
-             |
-             v
-   +--------------------------------------+
-   |  walk the table from the top         |
-   |                                      |
-   |  from == my state, event == mine? ---+---> no: next row
-   |  guard says yes?                  ---+---> no: next row
-   +--------------------------------------+
-             |  first row that fits wins
-             v
-   on_exit(LOCKED) -> take_coin() -> on_enter(UNLOCKED)
-             |
-             v
-   m.state = UNLOCKED          returns FSM_OK
-```
+It walks the table from the top and takes the **first row that fits** — right
+state, right event, and a guard that agrees.
 
-No row fits? Nothing runs, and you get `FSM_IGNORED`. That is normal, not an
-error.
+![How fsm_dispatch picks a row and runs it](docs/dispatch.svg)
 
 ## The three calls
 
@@ -118,21 +102,17 @@ Read the state with `m.state`. Never assign to it — send an event instead.
 
 ## A row, slot by slot
 
-```
-    { LOCKED,   EV_COIN,   UNLOCKED,   NULL,     take_coin }
-        |          |           |         |            |
-      from       event        to       guard       action
-   which state   what       where    may veto      what to
-    it applies  happened     to go   this row        run
-       to
-```
-
-`guard` and `action` are optional — pass `NULL`. Two wildcards help:
+![The five slots of a transition row](docs/row.svg)
 
 | write | in slot | means |
 | --- | --- | --- |
 | `FSM_ANY` | `from` | any state — good for a reset or abort event |
 | `FSM_SAME` | `to` | run the action, stay where you are |
+
+`FSM_SAME` is worth a closer look, because it is not the same as an arrow
+pointing back at your own state:
+
+![FSM_SAME versus a real self-transition](docs/same-vs-self.svg)
 
 ## Two arrows, same event
 
@@ -166,20 +146,16 @@ static const struct fsm_state_ops states[N_STATES] = {
 static const struct fsm_def def = { table, 2, states, N_STATES };
 ```
 
-They always run in this order:
-
-```
-   leaving LOCKED                    arriving in UNLOCKED
-         |                                    |
-     on_exit    ->     action     ->      on_enter
-```
+They always run in one order — **on_exit → action → on_enter** — the same one
+the dispatch picture above shows.
 
 `fsm_init` runs the starting state's `on_enter` too. Don't need hooks? Pass
 `NULL, 0` like the turnstile above.
 
 ## `ctx` — your own data
 
-The `void *` you hand `fsm_init` is passed to every guard, action and hook.
+![The ctx pointer reaching every callback](docs/ctx.svg)
+
 Put a counter, a socket, a device handle in there. The library never looks
 inside it.
 
@@ -190,6 +166,7 @@ include/fsm.h          the API, with comments
 src/fsm.c              the implementation, ~130 lines
 examples/turnstile.c   a bigger example, with guards and hooks
 test/test_fsm.c        the tests
+docs/*.svg             the diagrams in this README
 ```
 
 Written in Linux kernel C style: tabs, `struct` types (no typedefs),
