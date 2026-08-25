@@ -1,27 +1,48 @@
 # fsm
 
-A tiny finite state machine library in C.
+A tiny state machine library in C. One header, one `.c` file, no dependencies,
+no `malloc` — fine on a microcontroller.
 
-A state machine is just this: **your thing is in one state, an event happens,
-it moves to another state.** A door is `OPEN` or `CLOSED`. A download is
-`IDLE`, `RUNNING` or `DONE`. Writing that with flags and nested `if`s gets
-messy fast. Here you write it as a table and the library runs it.
+## The idea, in one picture
 
-- One header, one source file. Drop them into any C project.
-- No dependencies, no `malloc` — works fine on a microcontroller.
-- Works for anything: your states and events are just numbers you name.
+Your thing is in one **state**. An **event** happens. It moves to another state.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> LOCKED
+    LOCKED --> UNLOCKED: coin
+    UNLOCKED --> LOCKED: push
+```
+
+A turnstile: locked until you pay, then it lets one person through.
+
+You draw the arrows. This library runs them — you just type them out as a table:
+
+| from | on event | go to | and run |
+| --- | --- | --- | --- |
+| `LOCKED` | `EV_COIN` | `UNLOCKED` | `take_coin` |
+| `UNLOCKED` | `EV_PUSH` | `LOCKED` | `let_through` |
+
+which in C is that same table, one row per arrow:
+
+```c
+static const struct fsm_transition table[] = {
+	{ LOCKED,   EV_COIN, UNLOCKED, NULL, take_coin   },
+	{ UNLOCKED, EV_PUSH, LOCKED,   NULL, let_through },
+};
+```
+
+That is the whole library. Everything below is optional.
 
 ## Try it
 
 ```sh
 make check    # run the tests
-make run      # run the turnstile example
+make run      # run the turnstile
 ```
 
-## A complete example
-
-A turnstile: it stays locked until you put a coin in, then lets one person
-through.
+## The whole program
 
 ```c
 #include "fsm.h"
@@ -31,15 +52,14 @@ through.
 enum { LOCKED, UNLOCKED, N_STATES };
 enum { EV_COIN, EV_PUSH };
 
-/* 2. Write what should happen. ctx is your own data. */
+/* 2. Say what should happen. ctx is your own data. */
 static void take_coin(void *ctx)   { (*(int *)ctx)++; }
 static void let_through(void *ctx) { (void)ctx; puts("clunk"); }
 
-/* 3. Write the table: from this state, on this event, go to that state. */
+/* 3. Draw the arrows. */
 static const struct fsm_transition table[] = {
-	/* from      event     to         guard  action      */
-	{ LOCKED,    EV_COIN,  UNLOCKED,  NULL,  take_coin   },
-	{ UNLOCKED,  EV_PUSH,  LOCKED,    NULL,  let_through },
+	{ LOCKED,   EV_COIN, UNLOCKED, NULL, take_coin   },
+	{ UNLOCKED, EV_PUSH, LOCKED,   NULL, let_through },
 };
 
 static const struct fsm_def def = { table, 2, NULL, 0 };
@@ -60,72 +80,108 @@ int main(void)
 }
 ```
 
-That is the whole idea. Everything below is optional extra.
+## What one `fsm_dispatch` does
 
-## The three functions
-
-```c
-fsm_init(&m, &def, START_STATE, &my_data);   /* set it up */
-fsm_dispatch(&m, EV_SOMETHING);              /* feed it an event */
-fsm_accepts(&m, EV_SOMETHING);               /* 1 if that event would do something */
+```
+   fsm_dispatch(&m, EV_COIN)
+             |
+             v
+   +--------------------------------------+
+   |  walk the table from the top         |
+   |                                      |
+   |  from == my state, event == mine? ---+---> no: next row
+   |  guard says yes?                  ---+---> no: next row
+   +--------------------------------------+
+             |  first row that fits wins
+             v
+   on_exit(LOCKED) -> take_coin() -> on_enter(UNLOCKED)
+             |
+             v
+   m.state = UNLOCKED          returns FSM_OK
 ```
 
-Read the current state with `m.state`. Don't assign to it — send an event
-instead.
+No row fits? Nothing runs, and you get `FSM_IGNORED`. That is normal, not an
+error.
 
-`fsm_dispatch` gives you back:
+## The three calls
 
-- `FSM_OK` — it moved
-- `FSM_IGNORED` — no rule matched, nothing happened (normal, not an error)
-- `FSM_EARG` — you passed something broken
+| call | what it does |
+| --- | --- |
+| `fsm_init(&m, &def, LOCKED, &my_data)` | set it up, start in `LOCKED` |
+| `fsm_dispatch(&m, EV_COIN)` | feed it an event |
+| `fsm_accepts(&m, EV_COIN)` | `1` if that event would do something |
 
-## The table row, slot by slot
+Read the state with `m.state`. Never assign to it — send an event instead.
 
-```c
-{ from, event, to, guard, action }
+`fsm_dispatch` returns `FSM_OK` (it moved), `FSM_IGNORED` (no row fit) or
+`FSM_EARG` (you passed something broken).
+
+## A row, slot by slot
+
+```
+    { LOCKED,   EV_COIN,   UNLOCKED,   NULL,     take_coin }
+        |          |           |         |            |
+      from       event        to       guard       action
+   which state   what       where    may veto      what to
+    it applies  happened     to go   this row        run
+       to
 ```
 
-- **from** — the state this rule applies to. Use `FSM_ANY` for "no matter
-  which state we are in" — handy for an abort or reset event.
-- **event** — the event that triggers it.
-- **to** — the state to move to. Use `FSM_SAME` for "run the action but stay
-  where you are".
-- **guard** — optional. A function returning non-zero for yes. If it says no,
-  the library keeps looking at the rows below, so you can have two rules for
-  the same event and pick between them:
+`guard` and `action` are optional — pass `NULL`. Two wildcards help:
 
-  ```c
-  { IDLE, EV_START, RUNNING, have_fuel, NULL },   /* if fuelled, go */
-  { IDLE, EV_START, ERROR,   NULL,      beep },   /* otherwise, complain */
-  ```
+| write | in slot | means |
+| --- | --- | --- |
+| `FSM_ANY` | `from` | any state — good for a reset or abort event |
+| `FSM_SAME` | `to` | run the action, stay where you are |
 
-- **action** — optional. A function to run during the move.
+## Two arrows, same event
 
-Rules are checked top to bottom and the first one that fits wins.
+Give both rows the same event and let a guard pick.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    IDLE --> RUNNING: start (have_fuel)
+    IDLE --> ERROR: start (otherwise)
+```
+
+```c
+{ IDLE, EV_START, RUNNING, have_fuel, NULL },   /* fuelled? go */
+{ IDLE, EV_START, ERROR,   NULL,      beep },   /* otherwise, complain */
+```
+
+A guard that says no does not stop the search — it just falls through to the
+next row. Rows are read top to bottom and the first fit wins.
 
 ## Doing something on arriving or leaving
 
-Optional. One entry per state, in state order:
+Optional, one entry per state:
 
 ```c
 static const struct fsm_state_ops states[N_STATES] = {
-	[LOCKED]   = { light_red,   NULL },      /* { on_enter, on_exit } */
+	[LOCKED]   = { light_red,   NULL },   /* { on_enter, on_exit } */
 	[UNLOCKED] = { light_green, NULL },
 };
 
 static const struct fsm_def def = { table, 2, states, N_STATES };
 ```
 
-Order during a move: **on_exit → action → on_enter**. `fsm_init` runs the
-starting state's `on_enter` too.
+They always run in this order:
 
-Don't need them? Pass `NULL, 0` like the example above does.
+```
+   leaving LOCKED                    arriving in UNLOCKED
+         |                                    |
+     on_exit    ->     action     ->      on_enter
+```
 
-## What `ctx` is for
+`fsm_init` runs the starting state's `on_enter` too. Don't need hooks? Pass
+`NULL, 0` like the turnstile above.
 
-The `void *` you give `fsm_init` is passed to every guard, action and hook.
-Put your own struct there — a counter, a socket, a device handle. The library
-never looks inside it.
+## `ctx` — your own data
+
+The `void *` you hand `fsm_init` is passed to every guard, action and hook.
+Put a counter, a socket, a device handle in there. The library never looks
+inside it.
 
 ## Files
 
