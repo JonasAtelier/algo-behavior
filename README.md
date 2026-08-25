@@ -36,27 +36,27 @@ static void take_coin(void *ctx)   { (*(int *)ctx)++; }
 static void let_through(void *ctx) { (void)ctx; puts("clunk"); }
 
 /* 3. Write the table: from this state, on this event, go to that state. */
-static const fsm_transition table[] = {
-    /* from      event     to         guard  action      */
-    { LOCKED,    EV_COIN,  UNLOCKED,  NULL,  take_coin   },
-    { UNLOCKED,  EV_PUSH,  LOCKED,    NULL,  let_through },
+static const struct fsm_transition table[] = {
+	/* from      event     to         guard  action      */
+	{ LOCKED,    EV_COIN,  UNLOCKED,  NULL,  take_coin   },
+	{ UNLOCKED,  EV_PUSH,  LOCKED,    NULL,  let_through },
 };
 
-static const fsm_def def = { table, 2, NULL, 0 };
+static const struct fsm_def def = { table, 2, NULL, 0 };
 
 int main(void)
 {
-    int coins = 0;
-    fsm m;
+	int coins = 0;
+	struct fsm m;
 
-    fsm_init(&m, &def, LOCKED, &coins);   /* start in LOCKED */
+	fsm_init(&m, &def, LOCKED, &coins);   /* start in LOCKED */
 
-    fsm_dispatch(&m, EV_PUSH);            /* locked - nothing happens */
-    fsm_dispatch(&m, EV_COIN);            /* now UNLOCKED, coins == 1 */
-    fsm_dispatch(&m, EV_PUSH);            /* prints "clunk", back to LOCKED */
+	fsm_dispatch(&m, EV_PUSH);            /* locked - nothing happens */
+	fsm_dispatch(&m, EV_COIN);            /* now UNLOCKED, coins == 1 */
+	fsm_dispatch(&m, EV_PUSH);            /* prints "clunk", back to LOCKED */
 
-    printf("coins=%d state=%d\n", coins, m.state);
-    return 0;
+	printf("coins=%d state=%d\n", coins, m.state);
+	return 0;
 }
 ```
 
@@ -108,12 +108,12 @@ Rules are checked top to bottom and the first one that fits wins.
 Optional. One entry per state, in state order:
 
 ```c
-static const fsm_state_ops states[N_STATES] = {
-    [LOCKED]   = { light_red,   NULL },      /* { on_enter, on_exit } */
-    [UNLOCKED] = { light_green, NULL },
+static const struct fsm_state_ops states[N_STATES] = {
+	[LOCKED]   = { light_red,   NULL },      /* { on_enter, on_exit } */
+	[UNLOCKED] = { light_green, NULL },
 };
 
-static const fsm_def def = { table, 2, states, N_STATES };
+static const struct fsm_def def = { table, 2, states, N_STATES };
 ```
 
 Order during a move: **on_exit → action → on_enter**. `fsm_init` runs the
@@ -131,10 +131,13 @@ never looks inside it.
 
 ```
 include/fsm.h          the API, with comments
-src/fsm.c              the implementation, ~80 lines
+src/fsm.c              the implementation, ~130 lines
 examples/turnstile.c   a bigger example, with guards and hooks
 test/test_fsm.c        the tests
 ```
+
+Written in Linux kernel C style: tabs, `struct` types (no typedefs),
+kernel-doc comments, 80-column lines.
 
 ## Limits, so you are not surprised
 
