@@ -1,4 +1,16 @@
+<p align="center">
+  <img src="assets/states.svg"
+       alt="A state machine stepping through three states"
+       width="100%">
+</p>
+
 # fsm
+
+<p align="center">
+  <img alt="platform: portable C99" src="https://img.shields.io/badge/platform-portable%20C99-70e1b2?style=flat-square&labelColor=0d2238">
+  <img alt="language: C" src="https://img.shields.io/badge/language-C-70e1b2?style=flat-square&labelColor=0d2238">
+  <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-f2bd68?style=flat-square&labelColor=0d2238">
+</p>
 
 A tiny state machine library in C. One header, one `.c` file, no dependencies,
 no `malloc` — fine on a microcontroller.
