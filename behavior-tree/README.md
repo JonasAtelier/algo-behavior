@@ -38,6 +38,10 @@ make check    # run the tests
 make run      # run the patrol robot for 20 ticks
 ```
 
+To use it in your own project, copy `include/bt.h` and `src/bt.c`, link the
+CMake target `algo::behavior-tree`, or use this folder as an ESP-IDF component.
+See [Use one library](../README.md#use-one-library).
+
 `make run` prints the robot breaking off its patrol to dock:
 
 ```

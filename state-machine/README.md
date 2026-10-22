@@ -54,6 +54,10 @@ make check    # run the tests
 make run      # run the turnstile
 ```
 
+To use it in your own project, copy `include/fsm.h` and `src/fsm.c`, link the
+CMake target `algo::state-machine`, or use this folder as an ESP-IDF component.
+See [Use one library](../README.md#use-one-library).
+
 ## The whole program
 
 ```c
