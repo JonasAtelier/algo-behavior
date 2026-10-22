@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" role="img" aria-labelledby="t d">
+  <title id="t">A state machine stepping through three states</title>
+  <desc id="d">A token moves around three states over guarded transitions while the state index climbs as a staircase.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d2238"/>
+      <stop offset="1" stop-color="#102f34"/>
+    </linearGradient>
+    <filter id="g" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .lbl  { font-family: ui-monospace, monospace; font-size: 13px; fill: #9edbc4; letter-spacing: 1px; }
+      .blk  { font-family: ui-monospace, monospace; font-size: 15px; fill: #e8f5ef; letter-spacing: 1.5px; }
+      .sml  { font-family: ui-monospace, monospace; font-size: 11px; fill: #9edbc4; letter-spacing: 1px; }
+      .wire { stroke: #51c99c; stroke-width: 2.4; fill: none; opacity: .78; }
+      .box  { fill: none; stroke: #70e1b2; stroke-width: 2.2; opacity: .88; }
+      .grid { stroke: #234a52; stroke-width: 1; opacity: .55; }
+      .amb  { stroke: #f2bd68; stroke-width: 2.2; fill: none; }
+      .sp   { stroke: #f2bd68; stroke-width: 2; stroke-dasharray: 7 7; opacity: .8; }
+      .trace { fill: none; stroke: #70e1b2; stroke-width: 3.2;
+               stroke-dasharray: 1000; stroke-dashoffset: 1000;
+               animation: draw 6s linear infinite; }
+      .trace2{ fill: none; stroke: #f2bd68; stroke-width: 2.6; opacity: .9;
+               stroke-dasharray: 1000; stroke-dashoffset: 1000;
+               animation: draw 6s linear infinite; }
+      @keyframes draw { 0% { stroke-dashoffset: 1000; } 72% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .trace, .trace2 { animation: none; stroke-dashoffset: 0; }
+      }
+    </style>
+  </defs>
+
+  <rect width="900" height="400" rx="26" fill="url(#bg)"/>
+
+  <circle cx="150" cy="120" r="46" class="box"/>
+  <circle cx="450" cy="72"  r="46" class="box"/>
+  <circle cx="750" cy="120" r="46" class="box"/>
+  <text class="blk" x="150" y="126" text-anchor="middle">IDLE</text>
+  <text class="blk" x="450" y="78"  text-anchor="middle">RUN</text>
+  <text class="blk" x="750" y="126" text-anchor="middle">DONE</text>
+  <path id="fsm" class="wire" d="M192 102Q300 56 404 66M496 78Q610 96 710 108M750 166Q450 240 150 166"/>
+  <text class="sml" x="298" y="52"  text-anchor="middle">start</text>
+  <text class="sml" x="606" y="82"  text-anchor="middle">finish</text>
+  <text class="sml" x="450" y="212" text-anchor="middle">reset</text>
+  <text class="lbl" x="70" y="46">one header, one .c</text>
+  <text class="lbl" x="830" y="46" text-anchor="end">no malloc</text>
+  <circle r="5.5" fill="#f2bd68" filter="url(#g)">
+    <animateMotion dur="6s" repeatCount="indefinite" rotate="auto">
+      <mpath href="#fsm"/>
+    </animateMotion>
+  </circle>
+  <line x1="60" y1="228" x2="840" y2="228" stroke="#234a52" stroke-width="1" opacity=".6"/>
+  <g class="grid">
+    <line x1="70" y1="250" x2="830" y2="250"/>
+    <line x1="70" y1="276" x2="830" y2="276"/>
+    <line x1="70" y1="303" x2="830" y2="303"/>
+    <line x1="70" y1="330" x2="830" y2="330"/>
+    <line x1="70" y1="356" x2="830" y2="356"/>
+    <line x1="165" y1="250" x2="165" y2="356"/>
+    <line x1="260" y1="250" x2="260" y2="356"/>
+    <line x1="355" y1="250" x2="355" y2="356"/>
+    <line x1="450" y1="250" x2="450" y2="356"/>
+    <line x1="545" y1="250" x2="545" y2="356"/>
+    <line x1="640" y1="250" x2="640" y2="356"/>
+    <line x1="735" y1="250" x2="735" y2="356"/>
+  </g>
+  <path id="tr" class="trace" pathLength="1000" d="M70.0 339.0 L71.9 339.0 L73.8 339.0 L75.7 339.0 L77.6 339.0 L79.5 339.0 L81.4 339.0 L83.3 339.0 L85.2 339.0 L87.1 339.0 L89.0 339.0 L91.0 339.0 L92.9 339.0 L94.8 339.0 L96.7 339.0 L98.6 339.0 L100.5 339.0 L102.4 339.0 L104.3 339.0 L106.2 339.0 L108.1 339.0 L110.0 339.0 L111.9 339.0 L113.8 339.0 L115.7 339.0 L117.6 339.0 L119.5 339.0 L121.4 339.0 L123.3 339.0 L125.2 339.0 L127.1 339.0 L129.0 339.0 L131.0 339.0 L132.9 339.0 L134.8 339.0 L136.7 339.0 L138.6 339.0 L140.5 339.0 L142.4 339.0 L144.3 339.0 L146.2 339.0 L148.1 339.0 L150.0 339.0 L151.9 339.0 L153.8 339.0 L155.7 339.0 L157.6 339.0 L159.5 339.0 L161.4 339.0 L163.3 339.0 L165.2 339.0 L167.1 339.0 L169.0 339.0 L171.0 339.0 L172.9 339.0 L174.8 339.0 L176.7 339.0 L178.6 339.0 L180.5 339.0 L182.4 339.0 L184.3 339.0 L186.2 339.0 L188.1 339.0 L190.0 339.0 L191.9 339.0 L193.8 339.0 L195.7 339.0 L197.6 339.0 L199.5 339.0 L201.4 339.0 L203.3 339.0 L205.2 339.0 L207.1 339.0 L209.0 339.0 L211.0 339.0 L212.9 339.0 L214.8 339.0 L216.7 339.0 L218.6 339.0 L220.5 339.0 L222.4 339.0 L224.3 339.0 L226.2 339.0 L228.1 339.0 L230.0 339.0 L231.9 339.0 L233.8 339.0 L235.7 339.0 L237.6 339.0 L239.5 339.0 L241.4 339.0 L243.3 339.0 L245.2 339.0 L247.1 339.0 L249.0 339.0 L251.0 339.0 L252.9 339.0 L254.8 339.0 L256.7 339.0 L258.6 339.0 L260.5 339.0 L262.4 339.0 L264.3 339.0 L266.2 339.0 L268.1 339.0 L270.0 339.0 L271.9 339.0 L273.8 339.0 L275.7 339.0 L277.6 339.0 L279.5 339.0 L281.4 339.0 L283.3 303.0 L285.2 303.0 L287.1 303.0 L289.0 303.0 L291.0 303.0 L292.9 303.0 L294.8 303.0 L296.7 303.0 L298.6 303.0 L300.5 303.0 L302.4 303.0 L304.3 303.0 L306.2 303.0 L308.1 303.0 L310.0 303.0 L311.9 303.0 L313.8 303.0 L315.7 303.0 L317.6 303.0 L319.5 303.0 L321.4 303.0 L323.3 303.0 L325.2 303.0 L327.1 303.0 L329.0 303.0 L331.0 303.0 L332.9 303.0 L334.8 303.0 L336.7 303.0 L338.6 303.0 L340.5 303.0 L342.4 303.0 L344.3 303.0 L346.2 303.0 L348.1 303.0 L350.0 303.0 L351.9 303.0 L353.8 303.0 L355.7 303.0 L357.6 303.0 L359.5 303.0 L361.4 303.0 L363.3 303.0 L365.2 303.0 L367.1 303.0 L369.0 303.0 L371.0 303.0 L372.9 303.0 L374.8 303.0 L376.7 303.0 L378.6 303.0 L380.5 303.0 L382.4 303.0 L384.3 303.0 L386.2 303.0 L388.1 303.0 L390.0 303.0 L391.9 303.0 L393.8 303.0 L395.7 303.0 L397.6 303.0 L399.5 303.0 L401.4 303.0 L403.3 303.0 L405.2 303.0 L407.1 303.0 L409.0 303.0 L411.0 303.0 L412.9 303.0 L414.8 303.0 L416.7 303.0 L418.6 303.0 L420.5 303.0 L422.4 303.0 L424.3 303.0 L426.2 303.0 L428.1 303.0 L430.0 303.0 L431.9 303.0 L433.8 303.0 L435.7 303.0 L437.6 303.0 L439.5 303.0 L441.4 303.0 L443.3 303.0 L445.2 303.0 L447.1 303.0 L449.0 303.0 L451.0 303.0 L452.9 303.0 L454.8 303.0 L456.7 303.0 L458.6 303.0 L460.5 303.0 L462.4 303.0 L464.3 303.0 L466.2 303.0 L468.1 303.0 L470.0 303.0 L471.9 303.0 L473.8 303.0 L475.7 303.0 L477.6 303.0 L479.5 303.0 L481.4 303.0 L483.3 303.0 L485.2 303.0 L487.1 303.0 L489.0 303.0 L491.0 303.0 L492.9 303.0 L494.8 303.0 L496.7 303.0 L498.6 303.0 L500.5 303.0 L502.4 303.0 L504.3 303.0 L506.2 303.0 L508.1 303.0 L510.0 303.0 L511.9 303.0 L513.8 303.0 L515.7 303.0 L517.6 303.0 L519.5 303.0 L521.4 303.0 L523.3 303.0 L525.2 303.0 L527.1 303.0 L529.0 303.0 L531.0 303.0 L532.9 303.0 L534.8 303.0 L536.7 303.0 L538.6 303.0 L540.5 303.0 L542.4 267.0 L544.3 267.0 L546.2 267.0 L548.1 267.0 L550.0 267.0 L551.9 267.0 L553.8 267.0 L555.7 267.0 L557.6 267.0 L559.5 267.0 L561.4 267.0 L563.3 267.0 L565.2 267.0 L567.1 267.0 L569.0 267.0 L571.0 267.0 L572.9 267.0 L574.8 267.0 L576.7 267.0 L578.6 267.0 L580.5 267.0 L582.4 267.0 L584.3 267.0 L586.2 267.0 L588.1 267.0 L590.0 267.0 L591.9 267.0 L593.8 267.0 L595.7 267.0 L597.6 267.0 L599.5 267.0 L601.4 267.0 L603.3 267.0 L605.2 267.0 L607.1 267.0 L609.0 267.0 L611.0 267.0 L612.9 267.0 L614.8 267.0 L616.7 267.0 L618.6 267.0 L620.5 267.0 L622.4 267.0 L624.3 267.0 L626.2 267.0 L628.1 267.0 L630.0 267.0 L631.9 267.0 L633.8 267.0 L635.7 267.0 L637.6 267.0 L639.5 267.0 L641.4 267.0 L643.3 267.0 L645.2 267.0 L647.1 267.0 L649.0 267.0 L651.0 267.0 L652.9 267.0 L654.8 267.0 L656.7 267.0 L658.6 267.0 L660.5 267.0 L662.4 267.0 L664.3 267.0 L666.2 267.0 L668.1 267.0 L670.0 267.0 L671.9 267.0 L673.8 267.0 L675.7 267.0 L677.6 267.0 L679.5 267.0 L681.4 267.0 L683.3 267.0 L685.2 267.0 L687.1 267.0 L689.0 267.0 L691.0 267.0 L692.9 267.0 L694.8 267.0 L696.7 267.0 L698.6 267.0 L700.5 267.0 L702.4 267.0 L704.3 267.0 L706.2 267.0 L708.1 267.0 L710.0 267.0 L711.9 267.0 L713.8 267.0 L715.7 267.0 L717.6 267.0 L719.5 267.0 L721.4 267.0 L723.3 267.0 L725.2 267.0 L727.1 267.0 L729.0 267.0 L731.0 267.0 L732.9 267.0 L734.8 267.0 L736.7 267.0 L738.6 267.0 L740.5 267.0 L742.4 267.0 L744.3 267.0 L746.2 267.0 L748.1 267.0 L750.0 267.0 L751.9 267.0 L753.8 267.0 L755.7 267.0 L757.6 267.0 L759.5 267.0 L761.4 267.0 L763.3 267.0 L765.2 267.0 L767.1 267.0 L769.0 267.0 L771.0 267.0 L772.9 267.0 L774.8 267.0 L776.7 267.0 L778.6 267.0 L780.5 267.0 L782.4 267.0 L784.3 267.0 L786.2 267.0 L788.1 267.0 L790.0 267.0 L791.9 267.0 L793.8 267.0 L795.7 267.0 L797.6 267.0 L799.5 267.0 L801.4 267.0 L803.3 267.0 L805.2 267.0 L807.1 267.0 L809.0 267.0 L811.0 267.0 L812.9 267.0 L814.8 267.0 L816.7 267.0 L818.6 267.0 L820.5 267.0 L822.4 267.0 L824.3 267.0 L826.2 267.0 L828.1 267.0 L830.0 267.0"/>
+  <circle r="6" fill="#70e1b2" filter="url(#g)">
+    <animateMotion dur="6s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.72;1">
+      <mpath href="#tr"/>
+    </animateMotion>
+  </circle>
+  <text class="lbl" x="70" y="386">STATE</text>
+  <text class="lbl" x="830" y="386" text-anchor="end" fill="#f2bd68">IDLE &#8594; RUN &#8594; DONE</text>
+</svg>

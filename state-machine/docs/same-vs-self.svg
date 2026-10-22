@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="262" viewBox="0 0 720 262" role="img" aria-label="FSM_SAME versus a real self-transition">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#57606a"/>
+    </marker>
+    <style>
+      .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; fill: #1f2328; }
+      .hd   { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 13px; font-weight: 600; fill: #1f2328; }
+      .sub  { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11.5px; fill: #57606a; }
+    </style>
+  </defs>
+
+  <rect x="1" y="1" width="718" height="260" rx="10" fill="#fbfcfd" stroke="#d0d7de"/>
+  <line x1="360" y1="20" x2="360" y2="242" stroke="#e4e8ec"/>
+
+  <text class="hd"   x="28" y="36">to = A — a real self-transition</text>
+  <text class="code" x="28" y="62" fill="#0969da">{ A, EV, A, NULL, act }</text>
+
+  <circle cx="128" cy="146" r="28" fill="#fff" stroke="#0969da" stroke-width="1.6"/>
+  <text class="code" x="128" y="151" text-anchor="middle">A</text>
+  <path d="M112 122 A 28 28 0 1 1 148 126" fill="none" stroke="#57606a" stroke-width="1.4" marker-end="url(#b)"/>
+  <text class="sub" x="196" y="132">leaves, then</text>
+  <text class="sub" x="196" y="148">comes back</text>
+
+  <text class="code" x="28" y="212">on_exit → act → on_enter</text>
+  <text class="sub"  x="28" y="234">All three hooks fire. Lights blink, timers restart.</text>
+
+  <text class="hd"   x="388" y="36">to = FSM_SAME — internal</text>
+  <text class="code" x="388" y="62" fill="#0969da">{ A, EV, FSM_SAME, NULL, act }</text>
+
+  <circle cx="488" cy="146" r="28" fill="#fff" stroke="#0969da" stroke-width="1.6"/>
+  <text class="code" x="488" y="151" text-anchor="middle">A</text>
+  <path d="M472 122 A 28 28 0 1 1 508 126" fill="none" stroke="#57606a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#b)"/>
+  <text class="sub" x="556" y="132">never actually</text>
+  <text class="sub" x="556" y="148">leaves A</text>
+
+  <text class="code" x="388" y="212">act</text>
+  <text class="sub"  x="388" y="234">Action only. No exit, no enter, nothing resets.</text>
+</svg>
