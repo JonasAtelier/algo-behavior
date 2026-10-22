@@ -1,0 +1,5 @@
+*.o
+*.a
+patrol
+test_bt
+test_cpp_linkage
