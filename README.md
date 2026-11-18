@@ -11,6 +11,10 @@ Choose what a robot does next with two small C99 libraries.
 | [state-machine](state-machine/) | Describe modes such as locked and unlocked, and the events that switch between them. | [turnstile](state-machine/examples/turnstile.c) · [API](state-machine/include/fsm.h) |
 | [behavior-tree](behavior-tree/) | Check conditions in priority order, such as checking the battery before continuing a patrol. | [patrol](behavior-tree/examples/patrol.c) · [API](behavior-tree/include/bt.h) |
 
+[![A state machine moves from idle to run to done when transition conditions are met.](state-machine/assets/states.svg)](state-machine/)
+
+*[State machine example and API](state-machine/).*
+
 ## Try the example
 
 From this repository’s root, use Make and a C99 compiler. No robot hardware is needed.
