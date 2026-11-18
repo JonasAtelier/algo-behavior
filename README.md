@@ -2,6 +2,15 @@
 
 Choose what a robot does next with two small C99 libraries.
 
+**Contents** · [Choose a library](#choose-a-library) · [Try the example](#try-the-example) · [Add it to your project](#add-it-to-your-project)
+
+## Choose a library
+
+| Library | What it does | Example and API |
+| --- | --- | --- |
+| [state-machine](state-machine/) | Describe modes such as locked and unlocked, and the events that switch between them. | [turnstile](state-machine/examples/turnstile.c) · [API](state-machine/include/fsm.h) |
+| [behavior-tree](behavior-tree/) | Check conditions in priority order, such as checking the battery before continuing a patrol. | [patrol](behavior-tree/examples/patrol.c) · [API](behavior-tree/include/bt.h) |
+
 ## Try the example
 
 From this repository’s root, use Make and a C99 compiler. No robot hardware is needed.
@@ -11,13 +20,6 @@ make -C state-machine run
 ```
 
 The example models a turnstile. Watch how inserting a coin unlocks it and how pushing it changes the state. [Example source](state-machine/examples/turnstile.c)
-
-## Choose a library
-
-| Library | What it does |
-| --- | --- |
-| [state-machine](state-machine/) | Describe modes such as locked and unlocked, and the events that switch between them. |
-| [behavior-tree](behavior-tree/) | Check conditions in priority order, such as checking the battery before continuing a patrol. |
 
 ## Add it to your project
 
@@ -46,3 +48,5 @@ target_link_libraries(app PRIVATE algo::state-machine)
 </details>
 
 Run `make check` from the repository root to test the libraries. [MIT license](LICENSE)
+
+[Browse the workshop catalog · Portable C libraries](https://github.com/JonasAtelier/jonas-atelier-libraries#portable-c-libraries)
