@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * Self-check: assert-based, no framework. Build with `make check`.
  */

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * The header claims C++ can use it. Prove the extern "C" block works.
  */

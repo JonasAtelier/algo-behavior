@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * The canonical turnstile: locked until it is paid, one pass per coin.
  */

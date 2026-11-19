@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * A patrol robot: walk the route, but dock and charge when the battery gets
  * low. The battery check lives in one place, at the top of the tree, instead

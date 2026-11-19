@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 /*
  * Table-driven finite state machine. See include/fsm.h for the API.
  */
